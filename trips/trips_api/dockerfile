@@ -1,0 +1,16 @@
+FROM python:3.11
+
+# Set the working directory in the Docker container to the root directory
+WORKDIR /
+
+# Copy the requirements.txt file
+COPY requirements.txt /tmp/
+
+# Upgrade pip to the latest version and install the Python dependencies
+RUN pip install --upgrade pip && pip install -r /tmp/requirements.txt
+
+# Copy all the files of the api to the /drones_api/ directory
+COPY . /trips_api/
+
+# Run the command to start the application when docker starts
+CMD ["waitress-serve", "--listen=0.0.0.0:80", "--call", "trips_api:create_app"]

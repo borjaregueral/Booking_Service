@@ -1,0 +1,33 @@
+version: '3.1'
+services:
+  trips_api:
+    build: ./trips_api                               # Requests into MongoDB and Kafka connector to Kafka producer
+    ports:                                       
+      - "8080:80"
+    networks:
+      - cabifly_network
+    environment:
+      - DB_USER                                      # MongoDB user
+      - DB_PASSWORD                                  # MongoDB password
+      - DB_HOST                                      # MongoDB host
+      - DB_NAME=cabifly                              # MongoDB database  
+      - DB_COLLECTION=trips                          # MongoDB collection
+  trips_manager:                                     # From Kafka consumer to MongoDB booked services
+    build: ./trips_manager
+    networks:
+      - cabifly_network                              # External network as a test to setup in AWS ECS   
+    environment:
+      - DB_USER                                      # MongoDB user
+      - DB_PASSWORD                                  # MongoDB password
+      - TOPIC=cabifly.trips                          # Kafka topic 
+      - BOOTSTRAP_SERVERS                            # Kafka bootstrap servers
+      - AUTO_OFFSET_RESET=latest                     # Kafka offset reset 
+      - DB_HOST                                      # MongoDB host
+      - DB_NAME                                      # MongoDB database
+      - DB_COLLECTION                                # MongoDB collection
+      - DRONES_API_URL=http://drones_api:80/drones   # Drones API URL
+networks:
+  cabifly_network:
+    external: true
+    
+    
