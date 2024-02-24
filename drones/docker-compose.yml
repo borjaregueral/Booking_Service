@@ -1,0 +1,42 @@
+version: '3.1'
+services:
+  simulation:
+    build: ./simulator_api
+    networks:
+      - cabifly_network
+    environment:
+      - GEO_MADRID=40.4168,-3.7038 # Madrid coordinates
+      - NUM_DRONES=50              # Number of drones/vehicles to simulate  
+      - DISPERSION=0.01            # Dispersion of the drones/vehicles
+      - MOVEMENT=0.001             # Movement of the drones/vehicles
+      - BOOTSTRAP_SERVERS          # Kafka bootstrap servers
+      - TOPIC=cabifly.drones       # Kafka topic
+  ingester:
+    build: ./ingester
+    networks:
+      - cabifly_network
+    environment:
+      - DB_USER                    # MongoDB user
+      - DB_PASSWORD                # MongoDB password
+      - DB_HOST                    # MongoDB host
+      - DB_NAME=cabifly            # MongoDB database
+      - DB_COLLECTION=drones       # MongoDB collection
+      - LOCATION_FIELD=location    # MongoDB field for location
+      - BOOTSTRAP_SERVERS          # Kafka bootstrap servers
+      - TOPIC=cabifly.drones       # Kafka topic
+      - AUTO_OFFSET_RESET=latest   # Kafka auto offset reset
+  drones_api:
+    build: ./drones_api
+    networks:
+      - cabifly_network
+    ports:
+      - "80:80"
+    environment:
+      - DB_USER                    # MongoDB user
+      - DB_PASSWORD                # MongoDB password
+      - DB_HOST                    # MongoDB host
+      - DB_NAME=cabifly            # MongoDB database
+      - DB_COLLECTION=drones       # MongoDB collection
+networks:
+  cabifly_network:
+    external: true

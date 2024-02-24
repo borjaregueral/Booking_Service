@@ -1,0 +1,14 @@
+FROM python:3.11
+
+COPY requirements.txt /tmp/
+
+# Upgrade pip to the latest version and install the Python dependencies
+RUN pip install --upgrade pip && pip install -r /tmp/requirements.txt
+
+COPY simulation.py /opt/
+
+WORKDIR /opt/
+
+EXPOSE 5000
+
+CMD ["python3", "simulation.py"]
